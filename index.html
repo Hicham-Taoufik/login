@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connexion - MediClinic</title>
+    <!-- Using Consistent Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <!-- Using Consistent CSS (Subset needed for login) -->
+    <style>
+        :root {
+          --primary: #5d74f2;
+          --primary-light: #ebeffe;
+          --success: #31c971;
+          --success-light: #e0fbea;
+          --warning: #ffb648;
+          --warning-light: #fff8ec;
+          --danger: #ff5a5a;
+          --danger-light: #ffeded;
+          --gray-100: #f9fafb;
+          --gray-200: #f1f3f9;
+          --gray-300: #e5e7eb;
+          --gray-400: #d1d5db;
+          --gray-500: #9ca3af;
+          --gray-600: #6b7280;
+          --gray-700: #4b5563;
+          --gray-800: #374151;
+          --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+          --shadow-md: 0 4px 6px rgba(0,0,0,0.04);
+          --border-radius: 8px;
+        }
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          font-family: 'Inter', sans-serif;
+          background: var(--gray-100);
+          color: var(--gray-800);
+          line-height: 1.5;
+          min-height: 100vh;
+          display: flex; /* Center login box */
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+
+        .login-container {
+          background: white;
+          padding: 30px 40px; /* More padding */
+          border-radius: var(--border-radius);
+          box-shadow: var(--shadow-md);
+          width: 100%;
+          max-width: 400px; /* Limit width */
+          text-align: center;
+        }
+
+        .login-logo {
+          color: var(--primary);
+          font-weight: 700;
+          font-size: 1.5rem; /* Larger logo */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 30px; /* More space below logo */
+        }
+
+        .login-logo i {
+          margin-right: 10px;
+          font-size: 1.8rem; /* Larger icon */
+        }
+
+        .login-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 25px;
+        }
+
+        /* Form elements styling */
+        label {
+          display: block;
+          margin-bottom: 6px;
+          font-size: 0.85rem;
+          color: var(--gray-600);
+          text-align: left; /* Align labels left */
+        }
+
+        .input-group {
+          margin-bottom: 20px; /* More space between inputs */
+          text-align: left; /* Align contents left */
+        }
+
+        input[type="text"],
+        input[type="password"] {
+          width: 100%;
+          padding: 12px 14px; /* Slightly larger padding */
+          font-size: 0.9rem;
+          border-radius: var(--border-radius);
+          border: 1px solid var(--gray-300);
+          background: white;
+          transition: all 0.2s ease;
+          font-family: 'Inter', sans-serif;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+          outline: none;
+          border-color: var(--primary);
+          box-shadow: 0 0 0 3px rgba(93, 116, 242, 0.1);
+        }
+
+        /* Button styling */
+         .btn {
+          width: 100%; /* Full width button */
+          padding: 12px 16px; /* Larger button padding */
+          font-size: 0.9rem; /* Slightly larger font */
+          font-weight: 600; /* Bolder */
+          border-radius: var(--border-radius);
+          border: none;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 10px; /* Space above button */
+        }
+
+        .btn i {
+          margin-right: 8px; /* Space between icon and text */
+        }
+
+        .btn-primary {
+          background: var(--primary);
+          color: white;
+        }
+        .btn-primary:hover { background: #4a62d8; }
+        .btn:disabled {
+            background-color: var(--gray-300);
+            cursor: not-allowed;
+        }
+
+
+        /* Message styling */
+        .message {
+          padding: 10px;
+          border-radius: 6px;
+          margin-top: 20px; /* Space above message */
+          font-size: 0.85rem;
+          font-weight: 500;
+          display: none; /* Hidden by default */
+          text-align: center;
+        }
+        /* No need for success styling on login page probably */
+        .message-warning { background: var(--warning-light); color: var(--warning); border-left: 4px solid var(--warning); }
+        .message-error { background: var(--danger-light); color: var(--danger); border-left: 4px solid var(--danger); }
+
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="login-logo">
+            <i class="fas fa-clinic-medical"></i> MediClinic
+        </div>
+        <h2 class="login-title">Connexion à votre espace</h2>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username"><i class="fas fa-user"></i> Nom d'utilisateur</label>
+                <input type="text" id="username" name="username" required placeholder="Entrez votre nom d'utilisateur">
+            </div>
+            <div class="input-group">
+                <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
+                <input type="password" id="password" name="password" required placeholder="Entrez votre mot de passe">
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="loginButton">
+                <i class="fas fa-sign-in-alt"></i> Se Connecter
+            </button>
+
+            <div id="loginMessage" class="message message-error">
+                <!-- Error messages appear here -->
+            </div>
+        </form>
+    </div>
+
+    <!-- JavaScript (can be moved to login.js) -->
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const messageDiv = document.getElementById('loginMessage');
+        const loginButton = document.getElementById('loginButton');
+        // Define BASE_URL - Essential for the fetch call
+        const BASE_URL = 'https://workflows.aphelionxinnovations.com';
+
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default page reload
+            showMessage('loginMessage', '', ''); // Clear previous errors
+            loginButton.disabled = true; // Disable button
+            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...'; // Show loading state
+
+            const username = loginForm.username.value.trim();
+            const password = loginForm.password.value; // No trim on password
+
+            if (!username || !password) {
+                 showMessage('loginMessage', '<i class="fas fa-exclamation-triangle"></i> Veuillez entrer un nom d\'utilisateur et un mot de passe.', 'warning');
+                 loginButton.disabled = false;
+                 loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se Connecter';
+                 return;
+            }
+
+
+            fetch(`${BASE_URL}/webhook/signin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // Ensure keys match what n8n expects (userName, not username)
+                body: JSON.stringify({ userName: username, password: password })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // Attempt to read response text for specific errors
+                    return response.text().then(text => {
+                        // Customize error based on status/text
+                        let userMessage = `Échec (${response.status}): ${text || response.statusText}`;
+                        if (response.status === 400 || response.status === 401 || response.status === 403) {
+                            userMessage = '<i class="fas fa-times-circle"></i> Nom d\'utilisateur ou mot de passe incorrect.';
+                        }
+                         throw new Error(userMessage); // Throw custom error
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.access_tocken) {
+                    console.log("Login successful, token received.");
+                    localStorage.setItem('authToken', data.access_tocken);
+
+                    // **REDIRECT LOGIC - NEEDS CUSTOMIZATION**
+                    // This is where you decide where the user goes.
+                    // Option 1: Simple redirect to a central dashboard or selector page
+                       // window.location.href = '/dashboard-selector.html';
+                       // For now, let's just redirect to reception as an example
+                       window.location.href = '/reception.html'; // CHANGE AS NEEDED
+
+                    // Option 2: Decode JWT (less secure client-side, but possible)
+                    // try {
+                    //    const payloadBase64 = data.access_tocken.split('.')[1];
+                    //    const decodedPayload = JSON.parse(atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'))); // Handle base64url
+                    //    console.log("Decoded Role:", decodedPayload.role);
+                    //    if (decodedPayload.role === 'Doctor') window.location.href = '/doctor.html';
+                    //    else if (decodedPayload.role === 'Nurse') window.location.href = '/nurse.html';
+                    //    else if (decodedPayload.role === 'Reception') window.location.href = '/reception.html';
+                    //    // Add other roles (Billing, Admin etc.)
+                    //    else window.location.href = '/default-dashboard.html'; // Fallback
+                    // } catch (e) {
+                    //    console.error("Error decoding token or redirecting:", e);
+                    //    alert("Connexion réussie, mais redirection échouée.");
+                    //    window.location.href = '/default-dashboard.html'; // Fallback
+                    // }
+
+                } else {
+                     // This case might happen if n8n returns 200 OK but no token
+                     throw new Error('Token non reçu dans la réponse.');
+                }
+            })
+            .catch(error => {
+                console.error('Login failed:', error);
+                showMessage('loginMessage', error.message || 'Une erreur inconnue est survenue.', 'error');
+            })
+            .finally(() => {
+                 // Re-enable button regardless of success/failure
+                 loginButton.disabled = false;
+                 loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se Connecter';
+            });
+        });
+
+        // Show Message Function (subset needed for login page)
+        function showMessage(elementId, message, type) {
+            const messageElement = document.getElementById(elementId);
+            if (!messageElement) return;
+
+            messageElement.innerHTML = message || "";
+            messageElement.style.display = message ? "block" : "none";
+            messageElement.className = "message"; // Reset class
+
+            if (type === "warning") messageElement.classList.add("message-warning");
+            else if (type === "error") messageElement.classList.add("message-error");
+            // No success auto-hide needed here
+        }
+
+    </script>
+
+</body>
+</html>
