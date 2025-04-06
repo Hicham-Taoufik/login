@@ -155,7 +155,7 @@
           display: none; /* Hidden by default */
           text-align: center;
         }
-        /* No need for success styling on login page probably */
+        /* Only need warning/error for login */
         .message-warning { background: var(--warning-light); color: var(--warning); border-left: 4px solid var(--warning); }
         .message-error { background: var(--danger-light); color: var(--danger); border-left: 4px solid var(--danger); }
 
@@ -189,7 +189,7 @@
         </form>
     </div>
 
-    <!-- JavaScript (can be moved to login.js) -->
+    <!-- JavaScript -->
     <script>
         const loginForm = document.getElementById('loginForm');
         const messageDiv = document.getElementById('loginMessage');
@@ -214,7 +214,7 @@
             }
 
 
-            fetch(`${BASE_URL}/webhook/signin`, {
+            fetch(`${BASE_URL}/webhook/signin`, { // Ensure this path is correct
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 // Ensure keys match what n8n expects (userName, not username)
@@ -222,14 +222,13 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    // Attempt to read response text for specific errors
                     return response.text().then(text => {
-                        // Customize error based on status/text
                         let userMessage = `Échec (${response.status}): ${text || response.statusText}`;
                         if (response.status === 400 || response.status === 401 || response.status === 403) {
+                            // Provide a clearer message for common login errors
                             userMessage = '<i class="fas fa-times-circle"></i> Nom d\'utilisateur ou mot de passe incorrect.';
                         }
-                         throw new Error(userMessage); // Throw custom error
+                         throw new Error(userMessage);
                     });
                 }
                 return response.json();
@@ -239,36 +238,17 @@
                     console.log("Login successful, token received.");
                     localStorage.setItem('authToken', data.access_tocken);
 
-                    // **REDIRECT LOGIC - NEEDS CUSTOMIZATION**
-                    // This is where you decide where the user goes.
-                    // Option 1: Simple redirect to a central dashboard or selector page
-                       // window.location.href = '/dashboard-selector.html';
-                       // For now, let's just redirect to reception as an example
-                       window.location.href = '/reception.html'; // CHANGE AS NEEDED
-
-                    // Option 2: Decode JWT (less secure client-side, but possible)
-                    // try {
-                    //    const payloadBase64 = data.access_tocken.split('.')[1];
-                    //    const decodedPayload = JSON.parse(atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'))); // Handle base64url
-                    //    console.log("Decoded Role:", decodedPayload.role);
-                    //    if (decodedPayload.role === 'Doctor') window.location.href = '/doctor.html';
-                    //    else if (decodedPayload.role === 'Nurse') window.location.href = '/nurse.html';
-                    //    else if (decodedPayload.role === 'Reception') window.location.href = '/reception.html';
-                    //    // Add other roles (Billing, Admin etc.)
-                    //    else window.location.href = '/default-dashboard.html'; // Fallback
-                    // } catch (e) {
-                    //    console.error("Error decoding token or redirecting:", e);
-                    //    alert("Connexion réussie, mais redirection échouée.");
-                    //    window.location.href = '/default-dashboard.html'; // Fallback
-                    // }
+                    // *** UPDATED REDIRECT ***
+                    // Always redirect to the selector page after successful login
+                    window.location.href = '/dashboard-selector.html'; // Target the selector page
 
                 } else {
-                     // This case might happen if n8n returns 200 OK but no token
                      throw new Error('Token non reçu dans la réponse.');
                 }
             })
             .catch(error => {
                 console.error('Login failed:', error);
+                // Display the error message from the thrown Error
                 showMessage('loginMessage', error.message || 'Une erreur inconnue est survenue.', 'error');
             })
             .finally(() => {
@@ -285,11 +265,15 @@
 
             messageElement.innerHTML = message || "";
             messageElement.style.display = message ? "block" : "none";
-            messageElement.className = "message"; // Reset class
+            // Reset class list before adding specific type
+            messageElement.className = 'message'; // Reset to base class
 
-            if (type === "warning") messageElement.classList.add("message-warning");
-            else if (type === "error") messageElement.classList.add("message-error");
-            // No success auto-hide needed here
+            if (type === "warning") {
+                 messageElement.classList.add("message-warning");
+            } else if (type === "error") {
+                 messageElement.classList.add("message-error");
+            }
+            // No need for success styling/hiding on login page message area
         }
 
     </script>
