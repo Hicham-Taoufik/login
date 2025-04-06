@@ -60,19 +60,23 @@
         }
 
         .login-logo {
-          color: var(--primary);
-          font-weight: 700;
-          font-size: 1.5rem; /* Larger logo */
+          /* color: var(--primary); */ /* Color might not be needed if using image */
+          /* font-weight: 700; */
+          /* font-size: 1.5rem; */
           display: flex;
           align-items: center;
           justify-content: center;
           margin-bottom: 30px; /* More space below logo */
         }
 
-        .login-logo i {
-          margin-right: 10px;
-          font-size: 1.8rem; /* Larger icon */
+        /* Style for the logo image itself */
+        .login-logo img {
+            max-height: 50px; /* Adjust max height as needed */
+            width: auto; /* Maintain aspect ratio */
         }
+
+        /* Removed icon style as it's replaced by image */
+        /* .login-logo i { ... } */
 
         .login-title {
             font-size: 1.3rem;
@@ -164,9 +168,13 @@
 <body>
 
     <div class="login-container">
+        <!-- MODIFIED Logo Section -->
         <div class="login-logo">
-            <i class="fas fa-clinic-medical"></i> MediClinic
+             <!-- UPDATE src path and alt text -->
+            <img src="./logo.png" alt="MediClinic Logo">
         </div>
+        <!-- END Logo Section -->
+
         <h2 class="login-title">Connexion à votre espace</h2>
 
         <form id="loginForm">
@@ -189,7 +197,7 @@
         </form>
     </div>
 
-    <!-- JavaScript -->
+    <!-- JavaScript (No changes needed in JS for this visual update) -->
     <script>
         const loginForm = document.getElementById('loginForm');
         const messageDiv = document.getElementById('loginMessage');
@@ -203,7 +211,7 @@
             loginButton.disabled = true; // Disable button
             loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...'; // Show loading state
 
-            const username = loginForm.username.value.trim();
+            const username = loginForm.username.value.trim().toLowerCase(); // Force lowercase
             const password = loginForm.password.value; // No trim on password
 
             if (!username || !password) {
@@ -238,7 +246,6 @@
                     console.log("Login successful, token received.");
                     localStorage.setItem('authToken', data.access_tocken);
 
-                    // *** PATH CORRECTED for GitHub Pages structure ***
                     // Redirect to the selector page located at the root of the 'login' repo
                     window.location.href = 'dashboard-selector.html'; // Use relative path WITHIN the same repo
 
