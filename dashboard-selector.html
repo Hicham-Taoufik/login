@@ -22,14 +22,22 @@
     <script>
         // Define BASE_URL - Must match other pages
         const BASE_URL = 'https://workflows.aphelionxinnovations.com';
+        // Define ABSOLUTE base URLs for your different dashboard sites
+        // *** YOU MUST UPDATE THESE TO YOUR ACTUAL GITHUB PAGES URLS ***
+        const LOGIN_URL = 'https://hicham-taoufik.github.io/login/';
+        const RECEPTION_URL = 'https://hicham-taoufik.github.io/test/'; // As you specified
+        const DOCTOR_URL = 'https://hicham-taoufik.github.io/doctor/'; // Example - Change if needed
+        const NURSE_URL = 'https://hicham-taoufik.github.io/nurse/';   // Example - Change if needed
+        const BILLING_URL = 'https://hicham-taoufik.github.io/billing/'; // Example - Change if needed
+        const ADMIN_REDIRECT_URL = RECEPTION_URL; // Example: Admin goes to Reception
 
         // --- Re-use fetchWithAuth Helper Function ---
-        // (Copy this function from doctor.html/login.html or include via a shared JS file)
         function fetchWithAuth(url, options = {}) {
             const token = localStorage.getItem('authToken');
             if (!token) {
                 console.error('Selector: Auth token not found. Redirecting to login.');
-                window.location.href = '/login.html'; // Redirect if no token
+                // *** USE ABSOLUTE URL ***
+                window.location.href = LOGIN_URL; // Redirect if no token
                 return Promise.reject(new Error('Authentication token not found.'));
             }
             const headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
@@ -43,7 +51,8 @@
                     if (response.status === 401 || response.status === 403) {
                          console.error('Selector: Auth error:', response.status);
                          localStorage.removeItem('authToken');
-                         window.location.href = '/login.html';
+                         // *** USE ABSOLUTE URL ***
+                         window.location.href = LOGIN_URL;
                          throw new Error(`Authentication failed: ${response.status}`);
                     }
                      if (!response.ok) {
@@ -59,49 +68,52 @@
         // Function to get user role and redirect
         async function routeUser() {
             try {
-                // Call the n8n endpoint that verifies the token and returns user details
-                // This endpoint MUST return the user's role (e.g., in a 'role' field)
-                // Adjust '/webhook/user/me' to your actual endpoint path from n8n
-                const response = await fetchWithAuth(`${BASE_URL}/webhook/user/me`); // Use GET usually
+                // Ensure the /user/me endpoint returns role correctly (as verified previously)
+                const response = await fetchWithAuth(`${BASE_URL}/webhook/user/me`);
                 const userData = await response.json();
 
                 if (userData && userData.role) {
                     console.log("User role determined:", userData.role);
+
+                    let targetUrl = LOGIN_URL; // Default redirect to login
+
                     // Redirect based on the role received from the backend
                     switch (userData.role.toLowerCase()) { // Use lowercase for case-insensitive matching
                         case 'doctor':
-                            window.location.replace('/doctor.html'); // Use replace to avoid back button to selector
+                            targetUrl = DOCTOR_URL;
                             break;
                         case 'nurse':
-                            window.location.replace('/nurse.html');
+                            targetUrl = NURSE_URL;
                             break;
                         case 'reception':
-                            window.location.replace('/reception.html');
+                            targetUrl = RECEPTION_URL;
                             break;
                         case 'billing':
-                            window.location.replace('/billing.html'); // Example
+                            targetUrl = BILLING_URL;
                             break;
                         case 'admin':
-                            // Admins might go to reception or a dedicated admin panel
-                            window.location.replace('/reception.html'); // Example
+                            targetUrl = ADMIN_REDIRECT_URL; // Use the configured admin redirect
                             break;
                         default:
                             console.error("Unknown user role:", userData.role);
-                            alert("Rôle utilisateur inconnu. Redirection vers la page par défaut.");
-                            window.location.replace('/login.html'); // Fallback to login
+                            alert("Rôle utilisateur inconnu. Redirection vers la page de connexion.");
+                            targetUrl = LOGIN_URL; // Fallback to login
                     }
+
+                    console.log("Redirecting to:", targetUrl);
+                    window.location.replace(targetUrl); // Use replace with the determined absolute URL
+
                 } else {
-                    // This case means the /user/me endpoint didn't return expected data
                     console.error("Invalid user data received from /user/me:", userData);
                     throw new Error("Données utilisateur invalides reçues.");
                 }
 
             } catch (error) {
                 console.error("Failed to determine user role or redirect:", error);
-                 // Don't alert for auth errors as fetchWithAuth already handles redirection
                  if (!error.message.startsWith('Authentication failed')) {
-                     alert(`Erreur lors du chargement de votre espace: ${error.message}. Veuillez vous reconnecter.`);
-                      window.location.href = '/login.html'; // Fallback to login
+                     alert(`Erreur lors du chargement: ${error.message}. Reconnexion.`);
+                      // *** USE ABSOLUTE URL ***
+                      window.location.href = LOGIN_URL; // Fallback to login
                  }
             }
         }
