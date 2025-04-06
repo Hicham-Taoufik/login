@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chargement...</title>
+    <!-- Optional: Minimal styling for loading indicator -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+     <style>
+        body { font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f9fafb; color: #4b5563; }
+        .loading-container { text-align: center; }
+        .loading-container i { font-size: 2rem; margin-bottom: 15px; color: #5d74f2; }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Chargement de votre espace...</p>
+    </div>
+
+    <script>
+        // Define BASE_URL - Must match other pages
+        const BASE_URL = 'https://workflows.aphelionxinnovations.com';
+
+        // --- Re-use fetchWithAuth Helper Function ---
+        // (Copy this function from doctor.html/login.html or include via a shared JS file)
+        function fetchWithAuth(url, options = {}) {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                console.error('Selector: Auth token not found. Redirecting to login.');
+                window.location.href = '/login.html'; // Redirect if no token
+                return Promise.reject(new Error('Authentication token not found.'));
+            }
+            const headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
+            if (options.body && !(options.body instanceof FormData)) {
+                headers['Content-Type'] = 'application/json';
+            } else if (options.body instanceof FormData) {
+                 delete headers['Content-Type'];
+            }
+            return fetch(url, { ...options, headers: headers })
+                .then(response => {
+                    if (response.status === 401 || response.status === 403) {
+                         console.error('Selector: Auth error:', response.status);
+                         localStorage.removeItem('authToken');
+                         window.location.href = '/login.html';
+                         throw new Error(`Authentication failed: ${response.status}`);
+                    }
+                     if (!response.ok) {
+                         return response.text().then(text => {
+                            throw new Error(`Erreur réseau ${response.status}: ${text || response.statusText}`);
+                        });
+                     }
+                    return response;
+                });
+        }
+        // --- END: fetchWithAuth Helper Function ---
+
+        // Function to get user role and redirect
+        async function routeUser() {
+            try {
+                // Call the n8n endpoint that verifies the token and returns user details
+                // This endpoint MUST return the user's role (e.g., in a 'role' field)
+                // Adjust '/webhook/user/me' to your actual endpoint path from n8n
+                const response = await fetchWithAuth(`${BASE_URL}/webhook/user/me`); // Use GET usually
+                const userData = await response.json();
+
+                if (userData && userData.role) {
+                    console.log("User role determined:", userData.role);
+                    // Redirect based on the role received from the backend
+                    switch (userData.role.toLowerCase()) { // Use lowercase for case-insensitive matching
+                        case 'doctor':
+                            window.location.replace('/doctor.html'); // Use replace to avoid back button to selector
+                            break;
+                        case 'nurse':
+                            window.location.replace('/nurse.html');
+                            break;
+                        case 'reception':
+                            window.location.replace('/reception.html');
+                            break;
+                        case 'billing':
+                            window.location.replace('/billing.html'); // Example
+                            break;
+                        case 'admin':
+                            // Admins might go to reception or a dedicated admin panel
+                            window.location.replace('/reception.html'); // Example
+                            break;
+                        default:
+                            console.error("Unknown user role:", userData.role);
+                            alert("Rôle utilisateur inconnu. Redirection vers la page par défaut.");
+                            window.location.replace('/login.html'); // Fallback to login
+                    }
+                } else {
+                    // This case means the /user/me endpoint didn't return expected data
+                    console.error("Invalid user data received from /user/me:", userData);
+                    throw new Error("Données utilisateur invalides reçues.");
+                }
+
+            } catch (error) {
+                console.error("Failed to determine user role or redirect:", error);
+                 // Don't alert for auth errors as fetchWithAuth already handles redirection
+                 if (!error.message.startsWith('Authentication failed')) {
+                     alert(`Erreur lors du chargement de votre espace: ${error.message}. Veuillez vous reconnecter.`);
+                      window.location.href = '/login.html'; // Fallback to login
+                 }
+            }
+        }
+
+        // Run the routing logic as soon as the page loads
+        routeUser();
+
+    </script>
+</body>
+</html>
