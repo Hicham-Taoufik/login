@@ -238,9 +238,9 @@
                     console.log("Login successful, token received.");
                     localStorage.setItem('authToken', data.access_tocken);
 
-                    // *** UPDATED REDIRECT ***
-                    // Always redirect to the selector page after successful login
-                    window.location.href = '/dashboard-selector.html'; // Target the selector page
+                    // *** PATH CORRECTED for GitHub Pages structure ***
+                    // Redirect to the selector page located at the root of the 'login' repo
+                    window.location.href = 'dashboard-selector.html'; // Use relative path WITHIN the same repo
 
                 } else {
                      throw new Error('Token non reçu dans la réponse.');
